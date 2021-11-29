@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Backend;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class ProductController extends Controller
 {
@@ -20,6 +21,32 @@ class ProductController extends Controller
     }
 
     public function store(Request $request){
+       /* $request-> validate([
+            'name'=>'required|min:3',
+            'price'=>'required',
+            'desc'=>'required',
+            'photo'=>'required|image'
+        ],
+        [
+            'photo.required'=>'Please Upload A Image',
+            'photo.image'=>'Image must be an image (jpg, jpeg, png, bmp, gif, svg, or webp).',
+            ]
+        );*/
+
+        $validator =  Validator::make($request->all(),[
+            'name'=>'required|min:3',
+            'price'=>'required',
+            'desc'=>'required',
+            'photo'=>'required|image',
+        ],
+            [
+                'photo.required'=>'Please upload a photo',
+                'photo.image'=>'must be an image (jpg, jpeg, png, bmp, gif, svg, or webp)',
+            ]
+        );
+        if ($validator->fails()){
+            return redirect()->back()->withErrors($validator->getMessageBag())->withInput();
+        }
 
 
         $inputs = [
@@ -43,6 +70,21 @@ class ProductController extends Controller
         return view('backend.product.edit',compact('product'));
     }
     public function update(Request $request,$id){
+
+        $validator =  Validator::make($request->all(),[
+            'name'=>'required|min:3',
+            'price'=>'required',
+            'desc'=>'required',
+            'photo'=>'image',
+        ],
+            [
+
+                'photo.image'=>'must be an image (jpg, jpeg, png, bmp, gif, svg, or webp)',
+            ]
+        );
+        if ($validator->fails()){
+            return redirect()->back()->withErrors($validator->getMessageBag())->withInput();
+        }
 
         $product =Product::find($id);
         $inputs = [
